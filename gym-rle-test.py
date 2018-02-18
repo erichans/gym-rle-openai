@@ -1,7 +1,7 @@
 import gym
 import gym_rle
-#envs = gym.make('MortalKombat-v0')
-env = gym.make('ClassicKong-v0')
+env = gym.make('MortalKombat-v0')
+#env = gym.make('ClassicKong-v0')
 env.render()
 
 env.reset()
