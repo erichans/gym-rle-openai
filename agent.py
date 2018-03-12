@@ -30,7 +30,7 @@ if USE_SDL:
     #rle.setBool(b'sound', False) # Sound doesn't work on OSX
   elif sys.platform.startswith('linux'):
     rle.setBool(b'sound', True)
-  rle.setBool(b'display_screen', True)
+    rle.setBool(b'display_screen', True)
 
 # Load the ROM file
 rle.loadROM(sys.argv[1], sys.argv[2])
