@@ -1,5 +1,6 @@
 docker run --net=host -it -v $(pwd):/openai \
 -v ~/ROMs:/gym-rle/gym_rle/envs/roms/ \
+--entrypoint bash \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
 -e DISPLAY=unix$DISPLAY \
 -v /dev/snd:/dev/snd \
@@ -8,5 +9,5 @@ docker run --net=host -it -v $(pwd):/openai \
 -v ${XDG_RUNTIME_DIR}/pulse/native:${XDG_RUNTIME_DIR}/pulse/native \
 -v ~/.config/pulse/cookie:/root/.config/pulse/cookie \
 --group-add $(getent group audio | cut -d: -f3) \
-erichans/openai-gym-rle:1.0
+erichans/gym-rle-openai:1.0
 

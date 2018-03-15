@@ -1,1 +1,1 @@
-docker build --network=host -t erichans/openai-gym-rle:1.0 .
+docker build --network=host -t erichans/gym-rle-openai:1.0 .
