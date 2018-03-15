@@ -25,7 +25,7 @@ RUN export uid=1000 gid=1000 && \
     chown ${uid}:${gid} -R /home/developer
 
 WORKDIR /openai
-ENTRYPOINT python agent.py /gym-rle/gym_rle/envs/roms/street_fighter_ii.smc snes
+ENTRYPOINT python agent-openai.py
 
 USER developer
 ENV HOME /home/developer
