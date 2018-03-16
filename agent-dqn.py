@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from rle_python_interface import RLEInterface
 import sys
+import gc
 import random
 from random import randrange
 import numpy as np
 from collections import deque
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Flatten, Conv2D, MaxPooling2D, Dropout
 from keras.optimizers import Adam
 #from keras.callbacks import ModelCheckpoint
 
@@ -29,11 +30,22 @@ class DQNAgent:
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
         model = Sequential()
-        model.add(Dense(24, input_shape=self.state_size, activation='relu'))
-        model.add(Dense(24, activation='relu'))
+        model.add(Conv2D(64, (3, 3), padding='same', input_shape=self.state_size))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
+        model.add(Conv2D(64, (3, 3), padding='same', input_shape=self.state_size))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
+        model.add(Conv2D(64, (3, 3), padding='same', input_shape=self.state_size))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
+        model.add(Flatten())
+        model.add(Dense(64, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(64, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
-        model.compile(loss='mse',
-                      optimizer=Adam(lr=self.learning_rate))
+        model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
+        print(model.summary())
         return model
 
     def remember(self, state, action, reward, next_state, done):
@@ -45,7 +57,8 @@ class DQNAgent:
 
         act_values = self.model.predict(state)
         print('predicting...')
-        return np.unravel_index(np.argmax(act_values[0]), act_values[0].shape)[2]
+        #print('act_values[0].shape', act_values[0].shape)
+        return np.argmax(act_values[0])
 
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
@@ -60,9 +73,9 @@ class DQNAgent:
             #print('target_f.shape', target_f.shape)
             #print('target', target)
             #print('action', action_idx)
-            target_f[0, :, :, action_idx] = target
-            self.model.fit(state, target_f, epochs=1, verbose=0)
-            self.save('f_zero.hdf5')
+            target_f[0, action_idx] = target
+            self.model.fit(state, target_f, epochs=1, verbose=1)
+        self.save('f_zero.hdf5')
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
@@ -131,6 +144,7 @@ if __name__ == "__main__":
             state = next_state
 
         print("episode: {}/{}, score: {}, e: {:.2}".format(e, EPISODES, total_reward, agent.epsilon))
+        print('Garbage collection:', gc.collect())
         if len(agent.memory) > batch_size:
             agent.replay(batch_size)
         # if e % 10 == 0:
