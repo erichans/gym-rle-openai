@@ -20,11 +20,12 @@ class DQNAgent:
         self.action_size = action_size
         self.memory = deque(maxlen=2000)
         self.gamma = 0.95    # discount rate
-        self.epsilon = 1.0  # exploration rate
+        self.epsilon = 0.95  # exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
+        self.load('mk.hdf5')
         #self.checkpointer = ModelCheckpoint(filepath='weights-f_zero.hdf5', verbose=1, save_best_only=True)
 
     def _build_model(self):
@@ -33,10 +34,10 @@ class DQNAgent:
         model.add(Conv2D(64, (3, 3), padding='same', input_shape=self.state_size))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.25))
-        model.add(Conv2D(64, (3, 3), padding='same', input_shape=self.state_size))
+        model.add(Conv2D(64, (3, 3), padding='same'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.25))
-        model.add(Conv2D(64, (3, 3), padding='same', input_shape=self.state_size))
+        model.add(Conv2D(64, (3, 3), padding='same'))
         model.add(MaxPooling2D(pool_size=(2, 2)))
         model.add(Dropout(0.25))
         model.add(Flatten())
@@ -75,7 +76,7 @@ class DQNAgent:
             #print('action', action_idx)
             target_f[0, action_idx] = target
             self.model.fit(state, target_f, epochs=1, verbose=1)
-        self.save('f_zero.hdf5')
+        self.save('mk.hdf5')
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
@@ -107,6 +108,7 @@ if __name__ == "__main__":
     rle.loadROM(sys.argv[1], sys.argv[2])
 
     width, height = rle.getScreenDims()
+    #rle.setString(b'MK_player1_character', b'liu-kang')
     print("width", width)
     print("height", height)
     state_size = (height, width, 4)
