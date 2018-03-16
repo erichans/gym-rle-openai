@@ -13,6 +13,7 @@ import numpy as np
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Embedding, LSTM, Bidirectional, Activation, Conv2D, Lambda, Flatten
 from keras import optimizers
+from collections import deque
 
 
 if len(sys.argv) < 2:
@@ -54,23 +55,36 @@ model = Sequential()
 #mean = np.mean(data['observations'], axis=0)
 #std = np.std(data['observations'], axis=0) + 1e-6
 #observations_dim = env.observation_space.shape[0]
-state_size = rle.getScreenRGB().shape[0]
+output = rle.getLegalActionSet().shape[0]
 model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
 model.add(Flatten())
 #model.add(Dense(24, input_dim=self.state_size, activation='relu'))
 model.add(Dense(1, activation='sigmoid'))
-model.compile(loss='binary_crossentropy', optimizer=optimizers.Adam(clipvalue=5), metrics=['binary_accuracy'])
+model.compile(loss='mse', optimizer=optimizers.Adam(), metrics=['accuracy'])
 
 a = minimal_actions[randrange(len(minimal_actions))]
+#print('gray:', rle.getScreenGrayscale())
+
+epsilon = 1.0
+def act(state):
+    if np.random.rand() <= epsilon:
+        return env.action_space.sample()
+
+    act_values = model.predict(state)
+    return np.argmax(act_values[0])
+
+normalized_size = 255/2
+
 # Play 10 episodes
 for episode in range(10):
   total_reward = 0
   reward = 0
   X = np.zeros((1, input_shape[0], input_shape[1], 4))
   while not rle.game_over():
-    print('RGB:', rle.getScreenRGB().shape)
+    print('RGB:', np.max(rle.getScreenRGB()/normalized_size - 1))
+    print('Gray:', np.max(rle.getScreenGrayscale()/normalized_size - 1))
     X[0] = rle.getScreenRGB()
-    model.fit(X, [reward], epochs=1)
+    model.fit(X, [reward], epochs=1, verbose=0)
     # Apply an action and get the resulting reward
     reward = rle.act(a)
     print('reward', reward)
