@@ -8,7 +8,7 @@ from collections import deque
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.optimizers import Adam
-from keras.callbacks import ModelCheckpoint
+#from keras.callbacks import ModelCheckpoint
 
 EPISODES = 500000
 
@@ -24,7 +24,7 @@ class DQNAgent:
         self.epsilon_decay = 0.995
         self.learning_rate = 0.001
         self.model = self._build_model()
-        self.checkpointer = ModelCheckpoint(filepath='weights-f_zero.hdf5', verbose=1, save_best_only=True)
+        #self.checkpointer = ModelCheckpoint(filepath='weights-f_zero.hdf5', verbose=1, save_best_only=True)
 
     def _build_model(self):
         # Neural Net for Deep-Q learning Model
@@ -44,7 +44,7 @@ class DQNAgent:
             return randrange(self.action_size)
 
         act_values = self.model.predict(state)
-        print('act_values.shape', act_values.shape)
+        print('predicting...')
         return np.unravel_index(np.argmax(act_values[0]), act_values[0].shape)[2]
 
     def replay(self, batch_size):
@@ -55,13 +55,14 @@ class DQNAgent:
                 target = reward + self.gamma * np.amax(self.model.predict(next_state)[0])
 
             target_f = self.model.predict(state)
-            print('reward', reward)
-            print('predict.shape', self.model.predict(next_state).shape)
-            print('target_f.shape', target_f.shape)
-            print('target', target)
-            print('action', action_idx)
+            #print('reward', reward)
+            #print('predict.shape', self.model.predict(next_state).shape)
+            #print('target_f.shape', target_f.shape)
+            #print('target', target)
+            #print('action', action_idx)
             target_f[0, :, :, action_idx] = target
-            self.model.fit(state, target_f, epochs=1, verbose=0, callbacks=[self.checkpointer])
+            self.model.fit(state, target_f, epochs=1, verbose=0)
+            self.save('f_zero.hdf5')
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
