@@ -18,14 +18,14 @@ class DQNAgent:
     def __init__(self, state_size, action_size):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=3000)
-        self.gamma = 0.95    # discount rate
-        self.epsilon = 0.5  # exploration rate
-        self.epsilon_min = 0.01
-        self.epsilon_decay = 0.995
-        self.learning_rate = 0.001
-        self.model = self._build_model()
-        self.load('mk.hdf5')
+        #self.memory = deque(maxlen=3000)
+        #self.gamma = 0.95    # discount rate
+        #self.epsilon = 0.5  # exploration rate
+        #self.epsilon_min = 0.01
+        #self.epsilon_decay = 0.995
+        #self.learning_rate = 0.001
+        #self.model = self._build_model()
+        #self.load('mk.hdf5')
         #self.checkpointer = ModelCheckpoint(filepath='weights-f_zero.hdf5', verbose=1, save_best_only=True)
 
     def _build_model(self):
@@ -53,13 +53,13 @@ class DQNAgent:
         self.memory.append((state, action, reward, next_state, done))
 
     def act(self, state):
-        if np.random.rand() <= self.epsilon:
-            return randrange(self.action_size)
+        #if np.random.rand() <= self.epsilon:
+        return randrange(self.action_size)
 
-        act_values = self.model.predict(state)
+        #act_values = self.model.predict(state)
         #print('predicting...')
         #print('act_values[0].shape', act_values[0].shape)
-        return np.argmax(act_values[0])
+        #return np.argmax(act_values[0])
 
     def replay(self, batch_size):
         minibatch = random.sample(self.memory, batch_size)
@@ -147,12 +147,12 @@ if __name__ == "__main__":
             reward = reward if not done else -10
             total_reward += reward
             done = rle.game_over()
-            agent.remember(state, action_idx, reward, next_state, done)
+            #agent.remember(state, action_idx, reward, next_state, done)
             state = next_state
 
-        print("episode: {}/{}, score: {}, e: {:.2}".format(e, EPISODES, total_reward, agent.epsilon))
+        print("episode: {}/{}, score: {}".format(e, EPISODES, total_reward))
         print('Garbage collection:', gc.collect())
-        if len(agent.memory) > batch_size:
-            agent.replay(batch_size)
+        #if len(agent.memory) > batch_size:
+            #agent.replay(batch_size)
         # if e % 10 == 0:
         #     agent.save("./save/cartpole-dqn.h5")
