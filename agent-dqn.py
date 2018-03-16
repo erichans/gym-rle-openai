@@ -118,7 +118,6 @@ if __name__ == "__main__":
         total_reward = 0
         while not done:
             action_idx = agent.act(state)
-            print('action_idx', action_idx)
             action = rle.getLegalActionSet()[action_idx]
             reward = rle.act(action)
             if reward != 0:
